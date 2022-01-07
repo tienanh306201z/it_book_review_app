@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:online_book_review_app/models/new_book.dart';
+import 'package:online_book_review_app/providers/saved_books_provider.dart';
 import 'package:online_book_review_app/screens/book_detail_screen.dart';
+import 'package:provider/provider.dart';
 
-class NewsReadingCard extends StatelessWidget {
+class NewsReadingCard extends StatefulWidget {
   NewBook newBook;
 
   NewsReadingCard({Key? key, required this.newBook}) : super(key: key);
 
   @override
+  State<NewsReadingCard> createState() => _NewsReadingCardState();
+}
+
+class _NewsReadingCardState extends State<NewsReadingCard> {
+  @override
   Widget build(BuildContext context) {
+    final savedBooksProvider = Provider.of<SavedBooks>(context);
     return InkWell(
       onTap: () => Navigator.of(context)
-          .pushNamed(BookDetailScreen.tag, arguments: newBook.isbn13),
+          .pushNamed(BookDetailScreen.tag, arguments: widget.newBook.isbn13),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
         height: 245,
@@ -38,9 +46,9 @@ class NewsReadingCard extends StatelessWidget {
               ),
             ),
             Hero(
-              tag: newBook.isbn13,
+              tag: widget.newBook.isbn13,
               child: Image.network(
-                newBook.image,
+                widget.newBook.image,
                 fit: BoxFit.fitWidth,
                 height: 130,
                 width: 150,
@@ -52,11 +60,22 @@ class NewsReadingCard extends StatelessWidget {
               child: Column(
                 children: [
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border),
+                    onPressed: () {
+                      if (savedBooksProvider.savedBooks
+                          .any((element) => element.isbn13 == widget.newBook.isbn13))
+                        savedBooksProvider
+                            .removeBookFromSaveList(widget.newBook);
+                      else
+                        savedBooksProvider
+                            .addBookToSaveList(widget.newBook);
+                    },
+                    icon: savedBooksProvider.savedBooks
+                        .any((element) => element.isbn13 == widget.newBook.isbn13)
+                        ? Icon(Icons.favorite_outlined)
+                        : Icon(Icons.favorite_border),
                   ),
                   Text(
-                    newBook.price == '\$0.00' ? 'Free' : newBook.price,
+                    widget.newBook.price == '\$0.00' ? 'Free' : widget.newBook.price,
                     style: TextStyle(
                         color: Colors.deepOrangeAccent,
                         fontWeight: FontWeight.w600,
@@ -75,7 +94,7 @@ class NewsReadingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      newBook.title,
+                      widget.newBook.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -84,9 +103,9 @@ class NewsReadingCard extends StatelessWidget {
                           fontWeight: FontWeight.w700),
                     ),
                     Text(
-                      newBook.subtitle == ''
+                      widget.newBook.subtitle == ''
                           ? 'An IT book from IT Book Store'
-                          : newBook.subtitle,
+                          : widget.newBook.subtitle,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.black38,

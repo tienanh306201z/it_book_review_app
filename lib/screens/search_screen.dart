@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:online_book_review_app/apis/search_book_api.dart';
 import 'package:online_book_review_app/models/new_book.dart';
 import 'package:online_book_review_app/widgets/book_card.dart';
-import 'package:online_book_review_app/widgets/bottom_nav_bar.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class SearchScreen extends StatefulWidget {
   static const tag = '/search';
@@ -14,27 +15,45 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  var _recentPage = 1;
-  int _totalPage = 1;
+  String currentVal = '';
   final _textController = TextEditingController();
+
+  PagingController<int, NewBook> _pagingController =
+      PagingController(firstPageKey: 1, invisibleItemsThreshold: 0);
+
+  ScrollController _scrollController = new ScrollController();
 
   @override
   void initState() {
-    getAPI();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
     super.initState();
   }
-  void getAPI() async {
-    final data = await getSearchBook(_textController.value.text, _recentPage);
-    print(data);
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await getSearchBook(_textController.value.text, pageKey);
+      final isLastPage = newItems.length < 10;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          final nextPageKey = pageKey + 1;
+          _pagingController.appendPage(newItems, nextPageKey);
+        }
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
   }
+
   @override
   void dispose() {
     _textController.dispose();
+    _pagingController.dispose();
     super.dispose();
-  }
-
-  void setMaxPages(int pages){
-      _totalPage = pages;
   }
 
   @override
@@ -62,7 +81,11 @@ class _SearchScreenState extends State<SearchScreen> {
             child: TextField(
               controller: _textController,
               onSubmitted: (_) {
-                setState(() {});
+                if (_textController.text != currentVal ||
+                    _textController.value == null) {
+                  _pagingController.refresh();
+                  currentVal = _textController.text;
+                }
               },
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -74,65 +97,25 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          FutureBuilder(
-              future: getSearchBook(_textController.value.text, _recentPage),
-              builder: (_, snapshot) {
-                if (snapshot.hasData) {
-                  List<NewBook> _books = snapshot.data as List<NewBook>;
-                  return Column(
-                    children: [
-                      ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: _books.length,
-                          itemBuilder: (_, index) =>
-                              BookCard(newBook: _books[index])),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if(_recentPage > 1) InkWell(
-                              onTap: () => setState(() {
-                                _recentPage -= 1;
-                              }),
-                              child: Container(
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.arrow_back_ios),
-                                    Text(
-                                      'Trang trước',
-                                      style: Theme.of(context).textTheme.headline6,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Trang kế',
-                                    style: Theme.of(context).textTheme.headline6,
-                                  ),
-                                  Icon(Icons.arrow_forward_ios),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 100),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              }),
+          PagedListView<int, NewBook>(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            pagingController: _pagingController,
+            scrollController: _scrollController,
+            builderDelegate: PagedChildBuilderDelegate<NewBook>(
+              newPageProgressIndicatorBuilder: (_) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              itemBuilder: (context, item, index) =>
+                  AnimationConfiguration.staggeredList(
+                duration: const Duration(milliseconds: 500),
+                position: index,
+                child: ScaleAnimation(
+                  child: FadeInAnimation(child: BookCard(newBook: item)),
+                ),
+              ),
+            ),
+          ),
           SizedBox(
             height: size.height * 0.15,
           )

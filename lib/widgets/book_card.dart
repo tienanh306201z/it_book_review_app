@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:online_book_review_app/models/new_book.dart';
+import 'package:online_book_review_app/providers/saved_books_provider.dart';
 import 'package:online_book_review_app/screens/book_detail_screen.dart';
 import 'package:online_book_review_app/utils/url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 
-class BookCard extends StatelessWidget {
+class BookCard extends StatefulWidget {
   NewBook newBook;
 
   BookCard({Key? key, required this.newBook}) : super(key: key);
 
   @override
+  State<BookCard> createState() => _BookCardState();
+}
+
+class _BookCardState extends State<BookCard> {
+  @override
   Widget build(BuildContext context) {
+    final savedBooksProvider = Provider.of<SavedBooks>(context);
     final size = MediaQuery.of(context).size;
     return InkWell(
       onTap: () => Navigator.of(context)
-          .pushNamed(BookDetailScreen.tag, arguments: newBook.isbn13),
+          .pushNamed(BookDetailScreen.tag, arguments: widget.newBook.isbn13),
       child: Container(
         margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
@@ -32,9 +40,9 @@ class BookCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Hero(
-              tag: newBook.isbn13,
+              tag: widget.newBook.isbn13,
               child: CachedNetworkImage(
-                imageUrl: newBook.image,
+                imageUrl: widget.newBook.image,
                 height: size.height * 0.15,
                 fit: BoxFit.fitWidth,
                 placeholder: (_, url) => Container(
@@ -64,7 +72,7 @@ class BookCard extends StatelessWidget {
                     height: size.height * 0.02,
                   ),
                   Text(
-                    newBook.title,
+                    widget.newBook.title,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         color: Colors.black54,
@@ -75,9 +83,9 @@ class BookCard extends StatelessWidget {
                     height: size.height * 0.01,
                   ),
                   Text(
-                    newBook.subtitle == ''
+                    widget.newBook.subtitle == ''
                         ? 'An IT book from IT Book Store'
-                        : newBook.subtitle,
+                        : widget.newBook.subtitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -92,11 +100,24 @@ class BookCard extends StatelessWidget {
               child: Column(
                 children: [
                   IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.favorite_border),
+                    onPressed: () {
+                      if (savedBooksProvider.savedBooks
+                          .any((element) => element.isbn13 == widget.newBook.isbn13))
+                        savedBooksProvider
+                            .removeBookFromSaveList(widget.newBook);
+                      else
+                        savedBooksProvider
+                            .addBookToSaveList(widget.newBook);
+                    },
+                    icon: savedBooksProvider.savedBooks
+                            .any((element) => element.isbn13 == widget.newBook.isbn13)
+                        ? Icon(Icons.favorite_outlined)
+                        : Icon(Icons.favorite_border),
                   ),
                   Text(
-                    newBook.price == '\$0.00' ? 'Free' : newBook.price,
+                    widget.newBook.price == '\$0.00'
+                        ? 'Free'
+                        : widget.newBook.price,
                     style: TextStyle(
                         color: Colors.deepOrangeAccent,
                         fontWeight: FontWeight.w500,

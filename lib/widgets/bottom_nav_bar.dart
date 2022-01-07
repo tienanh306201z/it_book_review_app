@@ -10,11 +10,11 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(20),
-      height: MediaQuery.of(context).size.height * 0.09,
+      height: MediaQuery.of(context).size.height * 0.07,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Color(0xFFEFC4B7),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(color: Colors.black38, offset: Offset(0, 5), blurRadius: 10)
         ],
@@ -41,14 +41,18 @@ class BottomNavBar extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setIndex(2);
+            },
             icon: Icon(
               Icons.favorite,
               color: Colors.white,
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setIndex(3);
+            },
             icon: Icon(
               Icons.settings,
               color: Colors.white,

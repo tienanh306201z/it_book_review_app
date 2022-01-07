@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:online_book_review_app/providers/saved_books_provider.dart';
 import 'package:online_book_review_app/screens/home_screen.dart';
+import 'package:online_book_review_app/screens/save_screen.dart';
 import 'package:online_book_review_app/screens/search_screen.dart';
+import 'package:online_book_review_app/screens/setting_screen.dart';
 import 'package:online_book_review_app/widgets/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class TabsScreen extends StatefulWidget {
   static const tag = '/tabs';
@@ -14,6 +18,20 @@ class TabsScreen extends StatefulWidget {
 
 class _TabsScreenState extends State<TabsScreen> {
   var _currentIndex = 0;
+  bool _isFullyLoaded = false;
+
+  didChangeDependencies(){
+    if(!_isFullyLoaded)
+      getSavedBooks();
+    setState(() {
+      _isFullyLoaded = true;
+    });
+    super.didChangeDependencies();
+  }
+
+  Future<void> getSavedBooks() async {
+    await Provider.of<SavedBooks>(context).getSavedBooks();
+  }
 
   List<Map<String, dynamic>> _screens = [
     {
@@ -24,6 +42,14 @@ class _TabsScreenState extends State<TabsScreen> {
       'screen': SearchScreen(),
       'index': 1,
     },
+    {
+      'screen': SaveScreen(),
+      'index': 2,
+    },
+    {
+      'screen': SettingScreen(),
+      'index': 3,
+    }
   ];
 
   void _setIndex(int index) {

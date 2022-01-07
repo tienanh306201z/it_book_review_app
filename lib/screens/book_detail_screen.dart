@@ -3,6 +3,7 @@ import 'package:online_book_review_app/apis/book_detail_api.dart';
 import 'package:online_book_review_app/screens/pdf_view_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'amazon_order_screen.dart';
+import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
 class BookDetailScreen extends StatelessWidget {
   static const tag = '/book-detail';
@@ -170,31 +171,54 @@ class BookDetailScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                Hero(
-                                  tag: _bookData['isbn13'],
-                                  child: CachedNetworkImage(
-                                    imageUrl: _bookData['image'],
-                                    height: 170,
-                                    fit: BoxFit.fitWidth,
-                                    placeholder: (_, url) => Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      width: 100,
-                                      height: 170,
-                                      child: const Center(
-                                        child: CircularProgressIndicator(),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Hero(
+                                      tag: _bookData['isbn13'],
+                                      child: CachedNetworkImage(
+                                        imageUrl: _bookData['image'],
+                                        height: 170,
+                                        fit: BoxFit.fitWidth,
+                                        placeholder: (_, url) => Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          width: 100,
+                                          height: 170,
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        ),
+                                        errorWidget: (_, error, url) =>
+                                            Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          width: 100,
+                                          height: 170,
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    errorWidget: (_, error, url) => Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      width: 100,
-                                      height: 170,
-                                      child: const Center(
-                                        child: CircularProgressIndicator(),
+                                    RatingStars(
+                                      value: double.tryParse(
+                                          _bookData['rating'] as String)!,
+                                      starBuilder: (index, color) => Icon(
+                                        Icons.star,
+                                        color: color,
                                       ),
+                                      starCount: 5,
+                                      starSize: 20,
+                                      starSpacing: 1,
+                                      maxValueVisibility: false,
+                                      valueLabelVisibility: false,
+                                      valueLabelMargin:
+                                          const EdgeInsets.only(right: 8),
+                                      starOffColor: Colors.black38,
+                                      starColor: Colors.yellow.shade900,
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),

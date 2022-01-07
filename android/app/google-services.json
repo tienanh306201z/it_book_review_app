@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "543333627700",
+    "project_id": "it-book-review-app",
+    "storage_bucket": "it-book-review-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543333627700:android:e2156c4c7f286605f31761",
+        "android_client_info": {
+          "package_name": "com.example.online_book_review_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "543333627700-sbmae2m54d11c39npm3k7vbvreo9s99e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.online_book_review_app",
+            "certificate_hash": "b61262914fdba604e2ae6eb933411efac894352f"
+          }
+        },
+        {
+          "client_id": "543333627700-2b0vp6arf96gj5gkv4833r10dkse69r3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZtpMyO16YJGtHn2p--k2bmWlgWnV-JLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543333627700-2b0vp6arf96gj5gkv4833r10dkse69r3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

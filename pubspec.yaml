@@ -19,7 +19,16 @@ dev_dependencies:
   http: ^0.13.4
   syncfusion_flutter_pdfviewer:
   webview_flutter: ^2.1.2
-  cached_network_image: 
+  cached_network_image:
+  flutter_rating_stars: ^1.0.3+4
+  firebase_core: ^1.10.0
+  firebase_auth: ^3.2.0
+  provider: ^6.0.1
+  cloud_firestore:
+  loader_overlay:
+  infinite_scroll_pagination: ^3.1.0
+  flutter_staggered_animations:
+  url_launcher:
 
 flutter:
   uses-material-design: true
